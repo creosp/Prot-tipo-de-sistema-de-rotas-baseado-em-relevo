@@ -1,0 +1,49 @@
+!pip install openrouteservice folium matplotlib --quiet
+
+import openrouteservice
+from openrouteservice import convert
+import folium
+import matplotlib.pyplot as plt
+import numpy as np
+
+API_KEY = "5b3ce3597851110001cf6248cb0975023c85487e8e0af814bd0dd264" 
+
+# Coordenadas (São Paulo)
+origem = (-23.550520, -46.633308)   # Praça da Sé
+destino = (-23.564224, -46.652856)  # Av. Paulista
+
+# CLIENTE E ROTA
+client = openrouteservice.Client(key=API_KEY)
+
+rota = client.directions(
+    coordinates=[[origem[1], origem[0]], [destino[1], destino[0]]],
+    profile='cycling-regular',
+    format='geojson',
+    extra_info=['elevation']
+)
+
+
+# EXTRAIR DADOS DE ELEVAÇÃO
+coords = rota['features'][0]['geometry']['coordinates']
+elevacoes = [e[2] for e in rota['features'][0]['geometry']['coordinates'] if len(e) == 3]
+distancias = np.linspace(0, len(elevacoes), len(elevacoes))
+
+# PLOTAR GRÁFICO DE ELEVAÇÃO
+plt.figure(figsize=(10, 4))
+plt.plot(distancias, elevacoes, color='green')
+plt.title('Perfil de Elevação da Rota')
+plt.xlabel('Distância (pontos ao longo do trajeto)')
+plt.ylabel('Altitude (m)')
+plt.grid(True)
+plt.show()
+
+# MAPA COM ROTA
+m = folium.Map(location=origem, zoom_start=14)
+folium.GeoJson(rota, name='Rota').add_to(m)
+folium.Marker(origem, tooltip='Origem - Praça da Sé').add_to(m)
+folium.Marker(destino, tooltip='Destino - Av. Paulista').add_to(m)
+
+m.save("mapa_relevo.html")
+
+from IPython.display import IFrame
+IFrame("mapa_relevo.html", width=700, height=500)

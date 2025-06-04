@@ -6,7 +6,7 @@ import folium
 import matplotlib.pyplot as plt
 import numpy as np
 
-API_KEY = "5b3ce3597851110001cf6248cb0975023c85487e8e0af814bd0dd264" 
+API_KEY = "chave" 
 
 # Coordenadas (São Paulo)
 origem = (-23.550520, -46.633308)   # Praça da Sé
